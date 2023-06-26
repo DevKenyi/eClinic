@@ -72,30 +72,16 @@ public class RegistrationController {
            boolean passwordChecking =  passwordEncoder.matches(loginRequest.getPassword(), userDetails.getPassword());
             System.out.println("<---------->"+ passwordChecking+"<------------->");
 
-            System.out.println(loginRequest.getPassword());
-            System.out.println();
-            System.out.println(loginRequest.getEmail());
-            System.out.println();
-            System.out.println(userDetails.getUsername());
-            System.out.println();
-            System.out.println(userDetails.getPassword());
-
-            for(int i=0;i<10; i++){
-                System.out.println(userDetails.getPassword());
-            }
 
 
             // Use the injected customPasswordEncoder bean instead of creating a new instance
             if (passwordEncoder.matches(loginRequest.getPassword(), userDetails.getPassword())) {
-                log.info("-------------------------------this is being called here ---------------------------------");
-                log.info("userDetails object coming from Registration Class: " + userDetails);
 
-                log.info("AuthenticatedUser method loaded");
                 Authentication authentication = authenticationManager.authenticate(
                         new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
                 );
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                log.info("SecurityContextHolder.getContext called");
+
 
                 return ResponseEntity.ok().build();
             }
@@ -103,11 +89,11 @@ public class RegistrationController {
 
 
         } catch (AuthenticationException e) {
-            log.error("An error has occurred and the catch is loaded" + Arrays.toString(e.getStackTrace()));
+
         }
 
 
-        return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
     }
 
