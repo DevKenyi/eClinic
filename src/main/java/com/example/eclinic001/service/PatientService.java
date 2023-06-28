@@ -66,6 +66,7 @@ public class PatientService {
     }
     public ResponseEntity<Patient> userInfo(Authentication authentication){
         Patient patient = (Patient) authentication.getPrincipal();
+        System.out.println(patient);
         return new ResponseEntity<>(patient, HttpStatus.FOUND);
     }
 }
