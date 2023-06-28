@@ -43,6 +43,16 @@ public class Patient extends User {
     private Collection<Appointments> appointments;
      @Transient
     private Admin admin;
+     private String address;
+
+
+
+
+
+
+
+
+
     public void setBloodGroup(String bloodGroup) {
         if (Arrays.asList(VALID_BLOOD_GROUPS).contains(bloodGroup)) {
             this.bloodGroup = bloodGroup;

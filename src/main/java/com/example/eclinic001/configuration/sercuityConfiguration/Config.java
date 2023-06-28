@@ -29,6 +29,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -41,6 +42,7 @@ import java.util.stream.Collectors;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 @Slf4j
+
 
 public class Config implements UserDetailsService   {
 
@@ -119,56 +121,37 @@ public class Config implements UserDetailsService   {
 
     @Bean
     public SecurityFilterChain authorizationFilter(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
-                .cors((cors) -> cors.configurationSource(corsConfigurationSource()))
-                .authorizeHttpRequests((request)-> {
+        return http
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.maximumSessions(1)
+                        .expiredUrl("/login")
+                )
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .authorizeRequests(requests -> {
                             try {
-                                request
-                                        .requestMatchers("/admin/**")
-                                        .hasRole("ADMIN")
-                                        .requestMatchers("/anonymous*")
-                                        .anonymous()
-                                        .requestMatchers("/patient","/login")
-                                        .permitAll()
-                                        .anyRequest()
-                                        .authenticated()
-                                        .and()
-                                        .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                                requests
+                                        .requestMatchers(("/admin/**")).hasRole("ADMIN")
+                                        .requestMatchers(("/anonymous*")).anonymous()
+                                        .requestMatchers("/patient", "/login").permitAll()
+                                        .anyRequest().authenticated()
+                                        .and().sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+
+
+                                        );
                             } catch (Exception e) {
                                 throw new RuntimeException(e);
                             }
                         }
-
                 )
-                .formLogin((form)->form
+                .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/perform-login")
                         .defaultSuccessUrl("/dashboard")
-                        .failureForwardUrl("/failure")
+                        .failureForwardUrl("/login?error=true")
 
-                );
-                return http.build();
+                )
+                .build();
     }
-
-
-
-//    @Bean
-//    public AuthenticationManager authenticationManager(UserDetailsService userDetailsService) {
-//        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider() {
-//            @Override
-//            protected void additionalAuthenticationChecks(UserDetails userDetails, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
-//                String rawPassword = authentication.getCredentials().toString();
-//                String encodedPassword = userDetails.getPassword();
-//                if (!customPasswordEncoder.passwordEncoder().matches(rawPassword, encodedPassword)) {
-//                    throw new BadCredentialsException("Invalid password");
-//                }
-//            }
-//        };
-//        authProvider.setUserDetailsService(userDetailsService);
-//        authProvider.setPasswordEncoder(customPasswordEncoder.passwordEncoder());
-//        return new ProviderManager(authProvider);
-//    }
-
 
 
     @Bean
