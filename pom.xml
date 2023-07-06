@@ -125,8 +125,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version> <!-- Use a different version -->
                 <configuration>
-                    <source>1.8</source> <!-- Set the source Java version -->
-                    <target>1.8</target> <!-- Set the target Java version -->
+                    <source>19.0.1</source> <!-- Set the source Java version -->
+                    <target>19.0.1</target> <!-- Set the target Java version -->
                 </configuration>
             </plugin>
         </plugins>
