@@ -123,7 +123,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version> <!-- Use a different version -->
+                <version>3.8.0</version> <!-- Use a different version -->
                 <configuration>
                     <source>19.0.1</source> <!-- Set the source Java version -->
                     <target>19.0.1</target> <!-- Set the target Java version -->
