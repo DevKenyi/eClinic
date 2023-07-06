@@ -12,4 +12,5 @@ public interface PatientRepo extends JpaRepository<Patient, Long> {
 
     @Override
     Optional<Patient> findById(Long id);
+    Patient findPatientsByEmail(String email);
 }

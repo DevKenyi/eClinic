@@ -9,6 +9,7 @@ import com.example.eclinic001.service.DoctorService;
 import com.example.eclinic001.service.PatientService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -75,7 +76,7 @@ public class RegistrationController {
 
     @GetMapping("/test")
     public String test() {
-        return "API NOT SECURE";
+        return "API FOR EVERYONE";
     }
 
     @PostMapping("/login")
@@ -96,12 +97,19 @@ public class RegistrationController {
             if (passwordEncoder.matches(loginRequest.getPassword(), userDetails.getPassword())) {
                 UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword());
                 Authentication authentication = authenticationManager.authenticate(token);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                SecurityContext context = SecurityContextHolder.createEmptyContext();
+                context.setAuthentication(authentication);
+                context.getAuthentication();
                 userDetails = (UserDetails) authentication.getPrincipal();
+                HttpSession session = request.getSession();
+
+                session.setAttribute("SPRING_SECURITY_CONTEXT", context);
+                session.getMaxInactiveInterval();
+                log.info("Session here   " + session.getId());
                 log.info("Authentication Object here   " + authentication + "From " + RegistrationController.class);
                 log.info("USER DETAILS here  " + userDetails + "From " + RegistrationController.class);
 
-                String sessionToken = UUID.randomUUID().toString();
+               // String sessionToken = UUID.randomUUID().toString();
 
                 // Fetch additional user details based on your requirements
                 // For example, you can retrieve the user's role, name, email, etc.
@@ -174,10 +182,9 @@ public class RegistrationController {
 
                 // Create a map to include the session token and user details in the response body
                 Map<String, Object> responseBody = new HashMap<>();
-                responseBody.put("sessionToken", sessionToken);
-                responseBody.put("userRole", userRole);
+               responseBody.put("JSESSIONID", session.getId());
+                responseBody.put("userRole",  userRole);
                 responseBody.put("userName", userName);
-
 
                 responseBody.put("patientFirstname", patientFirstname);
                 responseBody.put("patientLastname", patientLastname);
@@ -188,19 +195,15 @@ public class RegistrationController {
                 responseBody.put("gender", gender);
                 responseBody.put("bloodGroup", bloodGroup);
 
-
-
                 responseBody.put("doctorFirstname", doctorFirstname);
                 responseBody.put("doctorLastname", doctorLastname);
                 responseBody.put("specialization", specialization);
                 responseBody.put("availability", availability);
 
-                responseBody.put("adminFistname", adminFirstname);
+                responseBody.put("adminFirstname", adminFirstname);
                 responseBody.put("adminLastname", adminLastname);
                 responseBody.put("email", adminEmail);
                 responseBody.put("dob", dob);
-
-
 
 
                 return ResponseEntity.ok()

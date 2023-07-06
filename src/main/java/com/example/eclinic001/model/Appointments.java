@@ -29,4 +29,5 @@ public class Appointments {
     @ManyToOne
     @JoinColumn(name = "doctor_id")
     private Doctor doctors;
+    private String purpose;
 }

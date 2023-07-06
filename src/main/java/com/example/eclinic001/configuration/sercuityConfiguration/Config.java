@@ -9,12 +9,16 @@ import com.example.eclinic001.repo.DoctorsRepo;
 import com.example.eclinic001.repo.PatientRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -27,8 +31,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.firewall.DefaultHttpFirewall;
+import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -52,16 +60,15 @@ public class Config implements UserDetailsService   {
 
     private final DoctorsRepo doctorsRepo;
 
-    private final PasswordEncoder passwordEncoder;
 
     private  UrlBasedCorsConfigurationSource source;
 
 @Autowired
-    public Config(AdminRepo adminRepo, PatientRepo patientRepo, DoctorsRepo doctorsRepo, PasswordEncoder passwordEncoder) {
+    public Config(AdminRepo adminRepo, PatientRepo patientRepo, DoctorsRepo doctorsRepo) {
         this.adminRepo = adminRepo;
         this.patientRepo = patientRepo;
         this.doctorsRepo = doctorsRepo;
-        this.passwordEncoder = passwordEncoder;
+
     }
 
 
@@ -72,7 +79,7 @@ public class Config implements UserDetailsService   {
         if (admin != null) {
             return User.builder()
                     .username(admin.getEmail())
-                    .password(passwordEncoder.encode(admin.getPassword()))
+                    .password(admin.getPassword())
                     .authorities(mapAuthorities(admin.getRoles()))
                     .credentialsExpired(false)
                     .accountLocked(false)
@@ -83,12 +90,12 @@ public class Config implements UserDetailsService   {
 
         Patient patient = patientRepo.findPatientByEmail(username);
         if (patient != null) {
-            String passwordChecks = passwordEncoder.encode(patient.getPassword());
+            String passwordChecks = getPasswordEncoder().encode(patient.getPassword());
             log.info("Stored password in Db: "+passwordChecks + " For user "+ patient.getEmail());
 
             return User.builder()
                     .username(patient.getEmail())
-                    .password(passwordEncoder.encode(patient.getPassword()))
+                    .password(patient.getPassword())
                     .disabled(false)
                     .accountLocked(false)
                     .accountExpired(false)
@@ -101,7 +108,7 @@ public class Config implements UserDetailsService   {
         if (doctor != null) {
             return User.builder()
                     .username(doctor.getEmail())
-                    .password(passwordEncoder.encode(doctor.getPassword()))
+                    .password(doctor.getPassword())
                     .disabled(false)
                     .accountLocked(false)
                     .accountExpired(false)
@@ -115,7 +122,7 @@ public class Config implements UserDetailsService   {
 
     private Collection<? extends GrantedAuthority> mapAuthorities(Collection<ROLES> roles) {
         return roles.stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
+                .map(role -> new SimpleGrantedAuthority("ROLE_"+role.getAuthorities()))
                 .collect(Collectors.toList());
     }
 
@@ -131,8 +138,8 @@ public class Config implements UserDetailsService   {
                             try {
                                 requests
                                         .requestMatchers(("/admin/**")).hasRole("ADMIN")
-                                        .requestMatchers(("/anonymous*")).anonymous()
                                         .requestMatchers("/patient", "/login").permitAll()
+                                        .requestMatchers("/appointments/**").hasRole("PATIENT")
                                         .anyRequest().authenticated()
                                         .and().sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
@@ -142,20 +149,22 @@ public class Config implements UserDetailsService   {
                                 throw new RuntimeException(e);
                             }
                         }
+
                 )
+
                 .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/perform-login")
                         .defaultSuccessUrl("/dashboard")
                         .failureForwardUrl("/login?error=true")
-
                 )
+                .httpBasic(Customizer.withDefaults())
                 .build();
     }
 
 
     @Bean
-    public AuthenticationManager authenticationManager(UserDetailsService userDetailsService){
+    public AuthenticationManager authenticationManager(UserDetailsService userDetailsService, @Qualifier("myPasswordEncoder") PasswordEncoder passwordEncoder){
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         System.out.println("Loading object "+ authProvider);
 
@@ -191,10 +200,19 @@ public class Config implements UserDetailsService   {
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }
-   @Bean
-    public PasswordEncoder passwordEncoder(){
-      return new BCryptPasswordEncoder();
+    @Bean(name="myPasswordEncoder")
+    public PasswordEncoder getPasswordEncoder() {
+        DelegatingPasswordEncoder delPasswordEncoder=  (DelegatingPasswordEncoder)PasswordEncoderFactories.createDelegatingPasswordEncoder();
+        BCryptPasswordEncoder bcryptPasswordEncoder =new BCryptPasswordEncoder();
+        delPasswordEncoder.setDefaultPasswordEncoderForMatches(bcryptPasswordEncoder);
+        return delPasswordEncoder;
     }
+    @Bean
+
+    public HttpFirewall firewall(){
+       return new DefaultHttpFirewall();
+    }
+
 
 
 
