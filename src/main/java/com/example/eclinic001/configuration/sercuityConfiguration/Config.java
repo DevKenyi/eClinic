@@ -1,6 +1,8 @@
 package com.example.eclinic001.configuration.sercuityConfiguration;
 
 import com.example.eclinic001.enums.ROLES;
+import com.example.eclinic001.jwtConfiguration.JwtTokenFilter;
+import com.example.eclinic001.jwtConfiguration.JwtUtil;
 import com.example.eclinic001.model.Admin;
 import com.example.eclinic001.model.Doctor;
 import com.example.eclinic001.model.Patient;
@@ -35,6 +37,7 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.firewall.DefaultHttpFirewall;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
@@ -52,79 +55,14 @@ import java.util.stream.Collectors;
 @Slf4j
 
 
-public class Config implements UserDetailsService   {
-
-    private final AdminRepo adminRepo;
-
-    private final PatientRepo patientRepo;
-
-    private final DoctorsRepo doctorsRepo;
-
-
+public class Config  {
     private  UrlBasedCorsConfigurationSource source;
-
-@Autowired
-    public Config(AdminRepo adminRepo, PatientRepo patientRepo, DoctorsRepo doctorsRepo) {
-        this.adminRepo = adminRepo;
-        this.patientRepo = patientRepo;
-        this.doctorsRepo = doctorsRepo;
-
-    }
+    @Autowired
+    private JwtUtil jwtUtil;
 
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Admin admin = adminRepo.findAdminByEmail(username);
-
-        if (admin != null) {
-            return User.builder()
-                    .username(admin.getEmail())
-                    .password(admin.getPassword())
-                    .authorities(mapAuthorities(admin.getRoles()))
-                    .credentialsExpired(false)
-                    .accountLocked(false)
-                    .disabled(false)
-                    .accountExpired(false)
-                    .build();
-        }
-
-        Patient patient = patientRepo.findPatientByEmail(username);
-        if (patient != null) {
-            String passwordChecks = getPasswordEncoder().encode(patient.getPassword());
-            log.info("Stored password in Db: "+passwordChecks + " For user "+ patient.getEmail());
-
-            return User.builder()
-                    .username(patient.getEmail())
-                    .password(patient.getPassword())
-                    .disabled(false)
-                    .accountLocked(false)
-                    .accountExpired(false)
-                    .credentialsExpired(false)
-                    .authorities(mapAuthorities(patient.getRoles()))
-                    .build();
-        }
-
-        Doctor doctor = doctorsRepo.findDoctorByEmail(username);
-        if (doctor != null) {
-            return User.builder()
-                    .username(doctor.getEmail())
-                    .password(doctor.getPassword())
-                    .disabled(false)
-                    .accountLocked(false)
-                    .accountExpired(false)
-                    .credentialsExpired(false)
-                    .authorities(mapAuthorities(doctor.getRoles()))
-                    .build();
-        }
-
-        throw new UsernameNotFoundException("User not found "+ HttpStatus.NOT_FOUND);
-    }
-
-    private Collection<? extends GrantedAuthority> mapAuthorities(Collection<ROLES> roles) {
-        return roles.stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_"+role.getAuthorities()))
-                .collect(Collectors.toList());
-    }
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
 
     @Bean
     public SecurityFilterChain authorizationFilter(HttpSecurity http) throws Exception {
@@ -134,6 +72,7 @@ public class Config implements UserDetailsService   {
                         .expiredUrl("/login")
                 )
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
                 .authorizeRequests(requests -> {
                             try {
                                 requests
@@ -141,10 +80,15 @@ public class Config implements UserDetailsService   {
                                         .requestMatchers("/patient", "/login").permitAll()
                                         .requestMatchers("/appointments/**").hasRole("PATIENT")
                                         .anyRequest().authenticated()
-                                        .and().sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                                        .and()
+                                        .addFilterBefore(jwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)
+                                        .sessionManagement((sessionManagement)->
+                                                sessionManagement.
+                                                        sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                                                        .maximumSessions(1)
+                                                        .expiredUrl("/login?expired"))
 
-
-                                        );
+                                ;
                             } catch (Exception e) {
                                 throw new RuntimeException(e);
                             }
@@ -160,6 +104,12 @@ public class Config implements UserDetailsService   {
                 )
                 .httpBasic(Customizer.withDefaults())
                 .build();
+    }
+
+
+    @Bean
+    public JwtTokenFilter jwtTokenFilter(){
+        return new JwtTokenFilter(jwtUtil, customUserDetailsService );
     }
 
 

@@ -1,7 +1,11 @@
 package com.example.eclinic001.controller;
 
 import com.example.eclinic001.GENDER;
-import com.example.eclinic001.model.*;
+import com.example.eclinic001.jwtConfiguration.JwtUtil;
+import com.example.eclinic001.model.Admin;
+import com.example.eclinic001.model.Doctor;
+import com.example.eclinic001.model.LoginRequest;
+import com.example.eclinic001.model.Patient;
 import com.example.eclinic001.repo.AdminRepo;
 import com.example.eclinic001.repo.DoctorsRepo;
 import com.example.eclinic001.repo.PatientRepo;
@@ -12,7 +16,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,17 +24,18 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.context.SecurityContextRepository;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 
 @RestController
@@ -52,6 +56,8 @@ public class RegistrationController {
     private DoctorsRepo doctorsRepo;
     @Autowired
     private AdminRepo adminRepo;
+    @Autowired
+    private JwtUtil jwtUtil;
 
 
 
@@ -65,7 +71,7 @@ public class RegistrationController {
 
 
     @PostMapping("/patient")
-    public ResponseEntity<Patient> registerPatient(@RequestBody Patient patient) {
+    public ResponseEntity<Patient> registerPatient  (@RequestBody Patient patient) throws Exception {
         return service.registerPatients(patient);
     }
 
@@ -90,10 +96,7 @@ public class RegistrationController {
 
         try {
             UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequest.getEmail());
-            boolean passwordChecking = passwordEncoder.matches(loginRequest.getPassword(), userDetails.getPassword());
-            System.out.println("<---------->" + passwordChecking + "<------------->");
 
-            // Use the injected customPasswordEncoder bean instead of creating a new instance
             if (passwordEncoder.matches(loginRequest.getPassword(), userDetails.getPassword())) {
                 UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword());
                 Authentication authentication = authenticationManager.authenticate(token);
@@ -101,18 +104,11 @@ public class RegistrationController {
                 context.setAuthentication(authentication);
                 context.getAuthentication();
                 userDetails = (UserDetails) authentication.getPrincipal();
-                HttpSession session = request.getSession();
 
-                session.setAttribute("SPRING_SECURITY_CONTEXT", context);
-                session.getMaxInactiveInterval();
-                log.info("Session here   " + session.getId());
-                log.info("Authentication Object here   " + authentication + "From " + RegistrationController.class);
-                log.info("USER DETAILS here  " + userDetails + "From " + RegistrationController.class);
+                String jwtToken = JwtUtil.generateToken(userDetails);
+                response.setHeader("Authorization", "Bearer " + token);
 
-               // String sessionToken = UUID.randomUUID().toString();
 
-                // Fetch additional user details based on your requirements
-                // For example, you can retrieve the user's role, name, email, etc.
                 String userRole = userDetails.getAuthorities().iterator().next().getAuthority();
                 String userName = userDetails.getUsername();
 
@@ -180,9 +176,11 @@ public class RegistrationController {
                 }
 
 
-                // Create a map to include the session token and user details in the response body
+
+
+
                 Map<String, Object> responseBody = new HashMap<>();
-               responseBody.put("JSESSIONID", session.getId());
+                responseBody.put("jwtToken", jwtToken);
                 responseBody.put("userRole",  userRole);
                 responseBody.put("userName", userName);
 
@@ -205,9 +203,7 @@ public class RegistrationController {
                 responseBody.put("email", adminEmail);
                 responseBody.put("dob", dob);
 
-
-                return ResponseEntity.ok()
-                        .header(HttpHeaders.AUTHORIZATION)
+               return ResponseEntity.ok()
                         .body(responseBody);
             }
 

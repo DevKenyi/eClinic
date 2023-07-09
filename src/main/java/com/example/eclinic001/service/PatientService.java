@@ -29,7 +29,7 @@ public class PatientService {
         this.repo = repo;
     }
 
-    public ResponseEntity<Patient> registerPatients(Patient patient) {
+    public ResponseEntity<Patient> registerPatients(Patient patient) throws Exception {
         if (repo.findPatientByEmail(patient.getEmail()) != null) {
             throw new UsernameNotFoundException("This user already exists in our database");
         } else {
@@ -41,8 +41,10 @@ public class PatientService {
             newPatient.setLastname(patient.getLastname());
 
             // Saving date of birth object as a string
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             newPatient.setDob(formatter.format(formatter.parse(patient.getDob())));
+
+            log.info("see this format "+ patient.getDob());
 
             newPatient.setEmail(patient.getEmail());
             newPatient.setGender(patient.getGender());
