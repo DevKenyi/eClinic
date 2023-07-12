@@ -16,11 +16,8 @@ public class Appointments {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long appointmentId;
 
-    @Column(name = "date")
-    private LocalDateTime dateOfAppointment;
-    @Column(name = "time")
-    private LocalDateTime timeOfAppointment;
-
+    @Column(name = "appointment_datetime")
+    private LocalDateTime appointmentDateTime;
 
     @ManyToOne
     @JoinColumn(name = "patient_id")
@@ -29,5 +26,6 @@ public class Appointments {
     @ManyToOne
     @JoinColumn(name = "doctor_id")
     private Doctor doctors;
+
     private String purpose;
 }

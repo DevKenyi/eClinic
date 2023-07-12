@@ -23,11 +23,8 @@ public class AppointmentController {
     @Autowired
     private AppointmentRepo aRepo;
     @PostMapping("appointment/{id}")
-    public ResponseEntity<Appointments> bookAppointment(@RequestBody Appointments appointments,
-                                                        Patient patient,@PathVariable Long id){
-        Patient findPatient= new Patient();
-        findPatient.setPatientId(id);
-        return appointmentService.bookAppointment(appointments, patient);
+    public ResponseEntity<Appointments> bookAppointment(@RequestBody Appointments appointments){
+        return null;
     }
 
     @GetMapping("/appointments")

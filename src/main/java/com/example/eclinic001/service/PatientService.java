@@ -55,7 +55,7 @@ public class PatientService {
             newPatient.setPhoneNumber(patient.getPhoneNumber());
             newPatient.setRoles(Collections.singleton(ROLES.PATIENT));
 
-            return new ResponseEntity<>(repo.save(newPatient), HttpStatus.OK);
+            return new ResponseEntity<>(repo.save(newPatient), HttpStatus.CREATED);
         }
     }
 

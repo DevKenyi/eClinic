@@ -14,7 +14,6 @@ import java.util.List;
 public class PatientController {
     @Autowired
     private PatientService service;
-
     @GetMapping("/patient")
     public ResponseEntity<List<Patient>> listOfPatient(){
         return service.patientList();

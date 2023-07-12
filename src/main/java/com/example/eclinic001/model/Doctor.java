@@ -14,14 +14,21 @@ import java.util.Set;
 @Entity
 public class Doctor extends User {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long doctorId;
+
     @Enumerated(EnumType.STRING)
     private SPECIALIZATION specialization;
+
     private String qualification;
+
     private int[] rating = new int[5];
+
     private boolean availability = true;
+
     @ManyToMany(mappedBy = "doctors")
     private Set<Patient> patientsSet = new HashSet<>();
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "admin_id")
     private Admin admin;

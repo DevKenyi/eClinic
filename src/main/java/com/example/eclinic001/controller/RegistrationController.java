@@ -56,9 +56,6 @@ public class RegistrationController {
     private DoctorsRepo doctorsRepo;
     @Autowired
     private AdminRepo adminRepo;
-    @Autowired
-    private JwtUtil jwtUtil;
-
 
 
     @Autowired
@@ -76,7 +73,7 @@ public class RegistrationController {
     }
 
     @PostMapping("/doctor")
-    public ResponseEntity<Doctor> registerDoctor(@Valid @RequestBody Doctor doctor) {
+    public ResponseEntity<Doctor> registerDoctor(@RequestBody Doctor doctor) {
         return doctorService.registerDoctor(doctor);
     }
 
@@ -174,8 +171,6 @@ public class RegistrationController {
 
                     }
                 }
-
-
 
 
 
