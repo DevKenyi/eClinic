@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @Slf4j
@@ -60,9 +61,6 @@ public class PatientService {
     }
 
 
-
-
-
     public ResponseEntity<List<Patient>> patientList() {
         return new ResponseEntity<>(repo.findAll(), HttpStatus.OK);
     }
@@ -71,4 +69,10 @@ public class PatientService {
         System.out.println(patient);
         return new ResponseEntity<>(patient, HttpStatus.FOUND);
     }
+
+    public Optional<Patient> getPatientById(Long id) {
+        return repo.findById(id);
+    }
+
+
 }

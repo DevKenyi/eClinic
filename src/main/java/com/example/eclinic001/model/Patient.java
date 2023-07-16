@@ -27,31 +27,16 @@ public class Patient extends User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long patientId;
-
     private String bloodGroup;
-
     private String genotype;
     @ManyToMany(fetch = FetchType.LAZY)
    @JoinTable(
-           name = "Appointments",
+           name = "appointments",
            joinColumns = @JoinColumn(name = "patient_id"),
            inverseJoinColumns = @JoinColumn(name = "doctor_id")
    )
     private Set<Doctor> doctors = new HashSet<>();
-
-    @Transient
-    private Collection<Appointments> appointments;
-     @Transient
-    private Admin admin;
      private String address;
-
-
-
-
-
-
-
-
 
     public void setBloodGroup(String bloodGroup) {
         if (Arrays.asList(VALID_BLOOD_GROUPS).contains(bloodGroup)) {

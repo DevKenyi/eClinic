@@ -60,5 +60,11 @@ public class JwtUtil {
         return Jwts.parser().setSigningKey(SecreteKey).parseClaimsJws(token).getBody();
     }
 
+    public static Long extractUserIdFromJwtToken(String token){
+        Claims claims = Jwts.parser().setSigningKey( SecreteKey).parseClaimsJws(token).getBody();
+        System.out.println("Claims here "+ claims);
+        return Long.parseLong(claims.getSubject());
+    }
+
 
 }

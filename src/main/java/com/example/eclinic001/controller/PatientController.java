@@ -8,6 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("api")
@@ -21,6 +22,12 @@ public class PatientController {
     @GetMapping("/user")
     public ResponseEntity<Patient> authPatient(Authentication authentication){
         return service.userInfo(authentication);
+    }
+
+    @GetMapping("/patients/{id}")
+    public ResponseEntity<Patient> getPatientById(@PathVariable Long id) {
+        Optional<Patient> patient = service.getPatientById(id);
+        return patient.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
 }

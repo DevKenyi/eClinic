@@ -78,7 +78,7 @@ public class Config  {
                                 requests
                                         .requestMatchers(("/admin/**")).hasRole("ADMIN")
                                         .requestMatchers("/patient","/login", "/doctor","/test").permitAll()
-                                        .requestMatchers("/appointments/**").hasRole("PATIENT")
+                                        .requestMatchers("/appointments/**","/").hasRole("PATIENT")
                                         .anyRequest().authenticated()
                                         .and()
                                         .addFilterBefore(jwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)

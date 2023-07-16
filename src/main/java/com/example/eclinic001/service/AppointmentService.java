@@ -1,5 +1,6 @@
 package com.example.eclinic001.service;
 
+import com.example.eclinic001.jwtConfiguration.JwtUtil;
 import com.example.eclinic001.model.Appointments;
 import com.example.eclinic001.model.Doctor;
 import com.example.eclinic001.model.Patient;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -46,7 +48,7 @@ public class AppointmentService {
             bookAppointment.setAppointmentDateTime(appointment.getAppointmentDateTime());
             bookAppointment.setPurpose(appointment.getPurpose());
 
-            bookAppointment.setDoctors(doctor);
+            bookAppointment.setDoctor(doctor);
 
             // Save the appointment
             Appointments savedAppointment = appointmentRepo.save(bookAppointment);
@@ -59,7 +61,51 @@ public class AppointmentService {
     }
 
 
-    public ResponseEntity<List<Appointments>> appointmentsResponseEntityList() {
-        return new ResponseEntity<List<Appointments>>(appointmentRepo.findAll(), HttpStatus.OK);
+//    public ResponseEntity<List<Appointments>> getAppointmentsByPatientId(String username, String token, Long id) {
+//        try {
+//            String extractUsername = JwtUtil.extractUsername(username);
+//            UserDetails userDetails = userDetailsService.loadUserByUsername(extractUsername);
+//            if (extractUsername != null && userDetails != null && JwtUtil.validateToken(token, userDetails)) {
+//                List<Appointments> appointments = appointmentRepo.findByDoctorPatientsSetPatientId(id);
+//                return new ResponseEntity<>(appointments, HttpStatus.OK);
+//            }
+//            return new ResponseEntity<>(HttpStatus.CONFLICT);
+//        } catch (Exception e) {
+//            // Handle the exception and return an appropriate response
+//            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
+//
+//    public ResponseEntity<Appointments> getAppointmentsByPatientId(String username, String token, Long id) {
+//        return new ResponseEntity<>(appointmentRepo.findAllWithPatientsAndDoctors());
+//
+//    }
+
+    public List<Appointments> patientAppointment(Long id) {
+        return appointmentRepo.findAppointmentByPatientId(id);
     }
+
+    public ResponseEntity<List<Appointments>> getPatientAppointment(@RequestHeader("Authorization") String authorizationHeader) {
+        try {
+            if (authorizationHeader == null || authorizationHeader.isEmpty()) {
+                log.info("Token is null, check token: " + authorizationHeader);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
+            String token = authorizationHeader.substring(7); // Remove "Bearer " prefix from the token
+            String extractUsername = JwtUtil.extractUsername(token);
+            log.info("See extracted token here: " + extractUsername);
+            Patient patient = patientRepo.findPatientByEmail(extractUsername);
+            if (patient != null) {
+                List<Appointments> appointments = appointmentRepo.findAppointmentByPatientId(patient.getPatientId());
+                return new ResponseEntity<>(appointments, HttpStatus.OK);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            log.error("Error retrieving patient appointments: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
 }

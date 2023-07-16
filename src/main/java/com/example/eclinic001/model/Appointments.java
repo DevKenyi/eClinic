@@ -1,5 +1,7 @@
 package com.example.eclinic001.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,13 +21,14 @@ public class Appointments {
     @Column(name = "appointment_datetime")
     private LocalDateTime appointmentDateTime;
 
+
     @ManyToOne
     @JoinColumn(name = "patient_id")
-    private Patient patients;
+    private Patient patient;
 
     @ManyToOne
     @JoinColumn(name = "doctor_id")
-    private Doctor doctors;
+    private Doctor doctor;
 
     private String purpose;
 }

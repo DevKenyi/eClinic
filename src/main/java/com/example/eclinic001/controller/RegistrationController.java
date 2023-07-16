@@ -109,110 +109,65 @@ public class RegistrationController {
                 String userRole = userDetails.getAuthorities().iterator().next().getAuthority();
                 String userName = userDetails.getUsername();
 
-                String patientFirstname = null;
-                String patientLastname = null;
-                String patientEmail = null;
-                String patientGenotype = null;
-                String patientAddress = null;
-                String dob = null;
-                String phoneNumber = null;
-                GENDER gender = null;
-                String bloodGroup = null;
-
-
-                String doctorFirstname = null;
-                String doctorLastname = null;
-                String specialization = null;
-                boolean availability = false;
-                Set<Patient> patientOnAppointment = null;
-
-
-                String adminFirstname = null;
-                String adminLastname = null;
-                String adminEmail = null;
-
-
                 if (userRole.equals("ROLE_PATIENT")) {
                     Patient patient = patientRepo.findPatientByEmail(loginRequest.getEmail());
                     if (patient != null) {
-                        Long id = patient.getPatientId();
-                        patientFirstname = patient.getFirstname();
-                        patientLastname = patient.getLastname();
-                        patientEmail  = patient.getEmail();
-                        patientGenotype = patient.getGenotype();
-                        patientAddress = patient.getAddress();
-                        dob = patient.getDob();
-                        phoneNumber = patient.getPhoneNumber();
-                        gender = patient.getGender();
-                        bloodGroup = patient.getBloodGroup();
+                        // Create and populate patient response object
+                        PatientResponse patientResponse = new PatientResponse();
+                        patientResponse.setJwtToken(jwtToken);
+                        patientResponse.setUserRole(userRole);
+                        patientResponse.setUserName(userName);
+                        patientResponse.setPatientFirstname(patient.getFirstname());
+                        patientResponse.setPatientLastname(patient.getLastname());
+                        patientResponse.setPatientEmail(patient.getEmail());
+                        patientResponse.setPatientGenotype(patient.getGenotype());
+                        patientResponse.setPatientAddress(patient.getAddress());
+                        patientResponse.setDob(patient.getDob());
+                        patientResponse.setPhoneNumber(patient.getPhoneNumber());
+                        patientResponse.setGender(patient.getGender());
+                        patientResponse.setBloodGroup(patient.getBloodGroup());
 
+                        return ResponseEntity.ok().body(patientResponse);
                     }
-
-                }
-
-                if(userRole.equals("ROLE_DOCTOR")){
+                } else if (userRole.equals("ROLE_DOCTOR")) {
                     Doctor doctor = doctorsRepo.getDoctorByEmail(loginRequest.getEmail());
-                    if(doctor!=null){
-                        doctorFirstname = doctor.getFirstname();
-                        doctorLastname = doctor.getLastname();
-                        specialization = String.valueOf(doctor.getSpecialization());
-                        availability = doctor.isAvailability();
+                    if (doctor != null) {
+                        // Create and populate doctor response object
+                        DoctorResponse doctorResponse = new DoctorResponse();
+                        doctorResponse.setJwtToken(jwtToken);
+                        doctorResponse.setUserRole(userRole);
+                        doctorResponse.setUserName(userName);
+                        doctorResponse.setDoctorFirstname(doctor.getFirstname());
+                        doctorResponse.setDoctorLastname(doctor.getLastname());
+                        doctorResponse.setSpecialization(String.valueOf(doctor.getSpecialization()));
+                        doctorResponse.setAvailability(doctor.isAvailability());
 
-
+                        return ResponseEntity.ok().body(doctorResponse);
                     }
-                }
-
-                if(userRole.equals("ROLE_ADMIN")){
+                } else if (userRole.equals("ROLE_ADMIN")) {
                     Admin admin = adminRepo.findAdminByEmail(loginRequest.getEmail());
-                    if(admin!=null){
-                        adminFirstname = admin.getFirstname();
-                        adminLastname = admin.getLastname();
-                        adminEmail = admin.getEmail();
+                    if (admin != null) {
+                        // Create and populate admin response object
+                        AdminResponse adminResponse = new AdminResponse();
+                        adminResponse.setJwtToken(jwtToken);
+                        adminResponse.setUserRole(userRole);
+                        adminResponse.setUserName(userName);
+                        adminResponse.setAdminFirstname(admin.getFirstname());
+                        adminResponse.setAdminLastname(admin.getLastname());
+                        adminResponse.setEmail(admin.getEmail());
 
+                        return ResponseEntity.ok().body(adminResponse);
                     }
                 }
-
-
-
-                Map<String, Object> responseBody = new HashMap<>();
-                responseBody.put("jwtToken", jwtToken);
-                responseBody.put("userRole",  userRole);
-                responseBody.put("userName", userName);
-
-                responseBody.put("patientFirstname", patientFirstname);
-                responseBody.put("patientLastname", patientLastname);
-                responseBody.put("patientEmail", patientEmail);
-                responseBody.put("patientGenotype", patientGenotype);
-                responseBody.put("patientAddress", patientAddress);
-                responseBody.put("patientPhoneNumber", phoneNumber);
-                responseBody.put("gender", gender);
-                responseBody.put("bloodGroup", bloodGroup);
-
-                responseBody.put("doctorFirstname", doctorFirstname);
-                responseBody.put("doctorLastname", doctorLastname);
-                responseBody.put("specialization", specialization);
-                responseBody.put("availability", availability);
-
-                responseBody.put("adminFirstname", adminFirstname);
-                responseBody.put("adminLastname", adminLastname);
-                responseBody.put("email", adminEmail);
-                responseBody.put("dob", dob);
-
-               return ResponseEntity.ok()
-                        .body(responseBody);
             }
-
         } catch (AuthenticationException e) {
-
+            // Exception handling code...
         }
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+
     }
-
-
-
-
-
 
 
 }
