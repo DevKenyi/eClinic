@@ -59,8 +59,8 @@ public class Config  {
                             try {
                                 requests
                                         .requestMatchers(("/admin/**")).hasRole("ADMIN")
-                                        .requestMatchers("/patient","/login", "/doctor","/test","/images/**").permitAll()
-                                        .requestMatchers("/appointments/**","/").hasAnyRole("PATIENT","ADMIN")
+                                        .requestMatchers("/patient","/login", "/doctor","/test").permitAll()
+                                        .requestMatchers("/appointments/**","/images/**").hasAnyRole("PATIENT","ADMIN","DOCTOR")
                                         .requestMatchers("/doctors-list").hasAnyRole("PATIENT","ADMIN")
                                         .anyRequest().authenticated()
                                         .and()
