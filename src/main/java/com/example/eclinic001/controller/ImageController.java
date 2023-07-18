@@ -1,8 +1,7 @@
-package com.example.eclinic.controllers;
+package com.example.eclinic001.controller;
 
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,12 +19,12 @@ public class ImageController {
     private static final String IMAGE_DIRECTORY_DOCTOR = "/src/main/resources/static/images/doctors";
 
 
-    @GetMapping("/images/{filename:.+}")
+    @GetMapping("images/patients/{filename:.+}")
     public ResponseEntity<Resource> savePatientImage(@PathVariable String filename) throws URISyntaxException, MalformedURLException {
         return getResourceResponseEntity(filename);
 
     }
-    @GetMapping("/images/doctors/{filename:.+}")
+    @GetMapping("images/doctors/{filename:.+}")
     private ResponseEntity<Resource> getResourceResponseEntity_Doc(@PathVariable String filename) {
         return getResourceResponseEntity(filename, IMAGE_DIRECTORY_DOCTOR);
     }

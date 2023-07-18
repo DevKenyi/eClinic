@@ -16,7 +16,7 @@ public enum SPECIALIZATION {
     Anesthesiologist("Anesthesiologist");
 
 
-        private String specialization;
+        private final String specialization;
 
     SPECIALIZATION(String specialization) {
         this.specialization = specialization;

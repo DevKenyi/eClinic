@@ -61,26 +61,6 @@ public class AppointmentService {
     }
 
 
-//    public ResponseEntity<List<Appointments>> getAppointmentsByPatientId(String username, String token, Long id) {
-//        try {
-//            String extractUsername = JwtUtil.extractUsername(username);
-//            UserDetails userDetails = userDetailsService.loadUserByUsername(extractUsername);
-//            if (extractUsername != null && userDetails != null && JwtUtil.validateToken(token, userDetails)) {
-//                List<Appointments> appointments = appointmentRepo.findByDoctorPatientsSetPatientId(id);
-//                return new ResponseEntity<>(appointments, HttpStatus.OK);
-//            }
-//            return new ResponseEntity<>(HttpStatus.CONFLICT);
-//        } catch (Exception e) {
-//            // Handle the exception and return an appropriate response
-//            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-//
-//    public ResponseEntity<Appointments> getAppointmentsByPatientId(String username, String token, Long id) {
-//        return new ResponseEntity<>(appointmentRepo.findAllWithPatientsAndDoctors());
-//
-//    }
-
     public List<Appointments> patientAppointment(Long id) {
         return appointmentRepo.findAppointmentByPatientId(id);
     }

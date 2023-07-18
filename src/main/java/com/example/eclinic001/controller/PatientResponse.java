@@ -1,6 +1,8 @@
 package com.example.eclinic001.controller;
 
 import com.example.eclinic001.GENDER;
+import com.example.eclinic001.model.Profile;
+import com.example.eclinic001.model.ProfilePicture;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,4 +23,5 @@ public class PatientResponse {
     private String phoneNumber;
     private GENDER gender;
     private String bloodGroup;
+   private ProfilePicture profilePicture;
 }

@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.validation.constraints.NotBlank;
@@ -47,6 +46,9 @@ public abstract class User {
     @Column(name = "user_roles")
     @Enumerated(EnumType.STRING)
     private Collection<ROLES> roles;
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "profile_id", referencedColumnName = "id")
+    private ProfilePicture profilePicture;
 
 
     public void validatePassword() {

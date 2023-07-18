@@ -3,7 +3,7 @@ package com.example.eclinic001.model;
 import jakarta.persistence.Entity;
 
 @Entity
-public class PatientProfile extends Profile{
+public class ProfilePicture extends Profile{
     @Override
     public Long getId() {
         return super.getId();

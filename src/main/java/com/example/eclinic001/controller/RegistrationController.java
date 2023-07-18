@@ -126,6 +126,7 @@ public class RegistrationController {
                         patientResponse.setPhoneNumber(patient.getPhoneNumber());
                         patientResponse.setGender(patient.getGender());
                         patientResponse.setBloodGroup(patient.getBloodGroup());
+                        patientResponse.setProfilePicture(patient.getProfilePicture());
 
                         return ResponseEntity.ok().body(patientResponse);
                     }

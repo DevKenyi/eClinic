@@ -6,7 +6,7 @@ public enum ROLES {
     DOCTOR("DOCTOR"),
     ADMIN("ADMIN");
 
-    private String authorities;
+    private final String authorities;
 
     ROLES(String authorities) {
         this.authorities = authorities;

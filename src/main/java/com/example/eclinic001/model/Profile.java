@@ -1,4 +1,4 @@
-package com.example.eclinic.model;
+package com.example.eclinic001.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 @NoArgsConstructor
 @Data
 @MappedSuperclass
+
 public abstract class Profile {
     @GeneratedValue (strategy = GenerationType.IDENTITY)
     @Id
