@@ -26,7 +26,16 @@ public class AppointmentController {
 
     @GetMapping("/appointments")
     public ResponseEntity<List<Appointments>> getAppointmentForPatients(@RequestHeader("Authorization") String authorization){
-         return appointmentService.getPatientAppointment(authorization);
+         return appointmentService.getPatientAppointment2(authorization);
+    }
+
+    @PostMapping("/appointment-bookings/{doctorId}")
+    public ResponseEntity<Appointments> bookAppointment(
+            @PathVariable Long doctorId,
+            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestBody Appointments patientAppointment
+    ) {
+        return appointmentService.bookAppointment(doctorId, authorizationHeader, patientAppointment);
     }
 
 

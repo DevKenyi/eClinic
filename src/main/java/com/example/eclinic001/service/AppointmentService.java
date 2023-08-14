@@ -1,6 +1,9 @@
 package com.example.eclinic001.service;
 
+import ch.qos.logback.core.read.ListAppender;
+import com.example.eclinic001.enums.AppointmentStatus;
 import com.example.eclinic001.jwtConfiguration.JwtUtil;
+import com.example.eclinic001.jwtConfiguration.TokenAuthorization;
 import com.example.eclinic001.model.Appointments;
 import com.example.eclinic001.model.Doctor;
 import com.example.eclinic001.model.Patient;
@@ -10,10 +13,12 @@ import com.example.eclinic001.repo.PatientRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestHeader;
 
@@ -34,54 +39,66 @@ public class AppointmentService {
     private AppointmentRepo appointmentRepo;
     @Autowired
     private UserDetailsService userDetailsService;
+    @Autowired
+    private TokenAuthorization tokenAuthorization;
 
-    public ResponseEntity<Appointments> bookAppointment(Appointments appointment, String patientEmail, Doctor doctor) {
-        // Find the patient by email in the database
-        Patient patient = patientRepo.findPatientByEmail(patientEmail);
+    public ResponseEntity<Appointments> bookAppointment(
+            Long doctorId,
+            String authorizationHeader,
+            Appointments patientAppointment
+    ) {
+        try {
+            Doctor doctor = doctorsRepo.findDoctorByDoctorId(doctorId);
+            if (doctor == null) {
+                return ResponseEntity.notFound().build();
+            }
 
-        // If patient is found in the database and doctor availability is true, book the appointment
-        if (patient != null && doctor.isAvailability()) {
-            // Create a new Appointment
-            Appointments bookAppointment = new Appointments();
-
-            // Set the appointment properties
-            bookAppointment.setAppointmentDateTime(appointment.getAppointmentDateTime());
-            bookAppointment.setPurpose(appointment.getPurpose());
-
-            bookAppointment.setDoctor(doctor);
-
-            // Save the appointment
-            Appointments savedAppointment = appointmentRepo.save(bookAppointment);
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedAppointment);
+            String extractedEmail = tokenAuthorization.authorizeToken(authorizationHeader);
+            Patient patient = patientRepo.findPatientByEmail(extractedEmail);
+            if (patient != null && doctor.isAvailability()) {
+                Appointments appointments = new Appointments();
+                appointments.setAppointmentDateTime(patientAppointment.getAppointmentDateTime());
+                appointments.setPatient(patient);
+                appointments.setDoctor(doctor);
+                appointments.setPurpose(patientAppointment.getPurpose());
+                appointments.setAppointmentStatus(AppointmentStatus.Pending);
+                Appointments bookedAppointment = appointmentRepo.save(appointments);
+                return ResponseEntity.status(HttpStatus.CREATED).body(bookedAppointment);
+            }
+            else {
+                  return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            log.error("Some error occurred: " + e.getMessage(), e);
         }
 
-        // Return appropriate response if conditions are not met
-        return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        return ResponseEntity.badRequest().build();
     }
+
+
 
 
     public List<Appointments> patientAppointment(Long id) {
         return appointmentRepo.findAppointmentByPatientId(id);
     }
 
-    public ResponseEntity<List<Appointments>> getPatientAppointment(@RequestHeader("Authorization") String authorizationHeader) {
-        try {
-            if (authorizationHeader == null || authorizationHeader.isEmpty()) {
-                log.info("Token is null, check token: " + authorizationHeader);
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-            }
-            String token = authorizationHeader.substring(7); // Remove "Bearer " prefix from the token
-            String extractUsername = JwtUtil.extractUsername(token);
-            log.info("See extracted token here: " + extractUsername);
-            Patient patient = patientRepo.findPatientByEmail(extractUsername);
-            if (patient != null) {
-                List<Appointments> appointments = appointmentRepo.findAppointmentByPatientId(patient.getPatientId());
-                return new ResponseEntity<>(appointments, HttpStatus.OK);
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (Exception e) {
+
+
+    public ResponseEntity<List<Appointments>> getPatientAppointment2(@RequestHeader("Authorization") String authorizationHeader){
+        TokenAuthorization tokenAuthorization = new TokenAuthorization();
+        try{
+          String extractedUsername =   tokenAuthorization.authorizeToken(authorizationHeader);
+          Patient patient = patientRepo.findPatientByEmail(extractedUsername);
+          if(patient!=null){
+              List<Appointments> appointments = appointmentRepo.findAppointmentByPatientId(patient.getPatientId());
+              return new ResponseEntity<>(appointments, HttpStatus.OK);
+
+          }
+          else {
+              return ResponseEntity.notFound().build();
+          }
+        }
+        catch (Exception e){
             log.error("Error retrieving patient appointments: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }

@@ -33,7 +33,11 @@ public class Doctor extends User {
     @JoinColumn(name = "admin_id")
     private Admin admin;
 
+    public int[] getRating() {
+        return rating;
+    }
 
-
-
+    public void setRating(int[] rating) {
+        this.rating = rating;
+    }
 }

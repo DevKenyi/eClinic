@@ -1,6 +1,6 @@
 package com.example.eclinic001.model;
 
-import com.example.eclinic001.GENDER;
+import com.example.eclinic001.enums.GENDER;
 import com.example.eclinic001.enums.ROLES;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -19,6 +19,7 @@ import java.util.Collection;
 @NoArgsConstructor
 @Data
 @Slf4j
+
 public abstract class User {
     @Column(name = "first_name")
     private String firstname;

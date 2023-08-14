@@ -17,7 +17,7 @@ import java.util.function.Function;
 public class JwtUtil {
 //    @Value("${security.jwt.toke.secret-key:secret-value}")
     private final static String SecreteKey  ="mysecretkey123";
-    private final  static  long EXPIRATION_TIME = 1200000; //60 seconds
+    private final  static  long EXPIRATION_TIME = 60*60*1000; //60 seconds
 
     public static String createToke(Map<String, Object> claims, String subject){
         return Jwts.builder()

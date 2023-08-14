@@ -1,4 +1,4 @@
-package com.example.eclinic001;
+package com.example.eclinic001.enums;
 
 public enum GENDER {
     MALE("MALE"),

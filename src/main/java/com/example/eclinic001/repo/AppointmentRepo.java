@@ -1,6 +1,7 @@
 package com.example.eclinic001.repo;
 
 import com.example.eclinic001.model.Appointments;
+import com.example.eclinic001.model.Doctor;
 import com.example.eclinic001.model.Patient;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

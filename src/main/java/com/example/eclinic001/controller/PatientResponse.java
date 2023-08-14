@@ -1,7 +1,6 @@
 package com.example.eclinic001.controller;
 
-import com.example.eclinic001.GENDER;
-import com.example.eclinic001.model.Profile;
+import com.example.eclinic001.enums.GENDER;
 import com.example.eclinic001.model.ProfilePicture;
 import lombok.AllArgsConstructor;
 import lombok.Data;

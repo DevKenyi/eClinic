@@ -14,6 +14,7 @@ import java.util.Set;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+
 public class Admin extends User {
     @Id
     private Long adminId;
