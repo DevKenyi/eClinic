@@ -1,5 +1,6 @@
 package com.example.eclinic001.repo;
 
+import com.example.eclinic001.enums.AppointmentStatus;
 import com.example.eclinic001.model.Appointments;
 import com.example.eclinic001.model.Doctor;
 import com.example.eclinic001.model.Patient;
@@ -15,7 +16,7 @@ public interface AppointmentRepo extends JpaRepository<Appointments, Long> {
 
     @Query("SELECT a FROM Appointments a JOIN a.patient p WHERE p.patientId = :patientId")
     List<Appointments> findAppointmentByPatientId(@Param("patientId") Long patientId);
-
+   List<Appointments> findAppointmentsByAppointmentStatusAndDoctor(AppointmentStatus appointmentStatus, Doctor doctor);
 
 }
 

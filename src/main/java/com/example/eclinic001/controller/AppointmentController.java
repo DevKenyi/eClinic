@@ -37,6 +37,11 @@ public class AppointmentController {
     ) {
         return appointmentService.bookAppointment(doctorId, authorizationHeader, patientAppointment);
     }
+    @GetMapping("/api/doctor/{doctorId}/pending-appointments")
+    public ResponseEntity< List<Appointments>> getPendingAppointmentForDoctors(@PathVariable Long doctorId,
+                                                                               @RequestHeader("Authorization") String authorization){
+         return appointmentService.pendingAppointments(doctorId,authorization);
+    }
 
 
 }

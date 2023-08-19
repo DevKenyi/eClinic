@@ -18,6 +18,12 @@ public class LabTest {
     private String description;
     private String labName;
     private String scientistName;
-//    @ManyToOne
-//    private Appointments appointments;
+
+    @ManyToOne
+    @JoinColumns({
+            @JoinColumn(name = "appointment_id", referencedColumnName = "appointmentId"),
+            @JoinColumn(name = "patient_id", referencedColumnName = "patient_id"),
+            @JoinColumn(name = "doctor_id", referencedColumnName = "doctor_id")
+    })
+    private Appointments appointments;
 }

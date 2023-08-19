@@ -60,6 +60,7 @@ public class Config  {
                                         .requestMatchers("/patient","/login", "/doctor","/test","/images/**").permitAll()
                                         .requestMatchers("/appointments/**","/").hasAnyRole("PATIENT","ADMIN")
                                         .requestMatchers("/doctors-list","/appointment-bookings/**").hasAnyRole("PATIENT","ADMIN")
+                                        .requestMatchers("/api/doctor/**").hasRole("DOCTOR")
                                         .anyRequest().authenticated()
                                         .and()
                                         .addFilterBefore(jwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)

@@ -40,4 +40,5 @@ public class Doctor extends User {
     public void setRating(int[] rating) {
         this.rating = rating;
     }
+
 }
