@@ -102,11 +102,14 @@ public class RegistrationController {
                 String userRole = userDetails.getAuthorities().iterator().next().getAuthority();
                 String userName = userDetails.getUsername();
 
+
                 if (userRole.equals("ROLE_PATIENT")) {
                     Patient patient = patientRepo.findPatientByEmail(loginRequest.getEmail());
+
                     if (patient != null) {
                         // Create and populate patient response object
                         PatientResponse patientResponse = new PatientResponse();
+                        patientResponse.setPatientId(patient.getPatientId());
                         patientResponse.setJwtToken(jwtToken);
                         patientResponse.setUserRole(userRole);
                         patientResponse.setUserName(userName);
@@ -129,6 +132,7 @@ public class RegistrationController {
                         // Create and populate doctor response object
                         DoctorResponse doctorResponse = new DoctorResponse();
                         doctorResponse.setJwtToken(jwtToken);
+                        doctorResponse.setId(doctor.getDoctorId());
                         doctorResponse.setUserRole(userRole);
                         doctorResponse.setUserName(userName);
                         doctorResponse.setDoctorFirstname(doctor.getFirstname());
@@ -143,6 +147,7 @@ public class RegistrationController {
                     if (admin != null) {
                         // Create and populate admin response object
                         AdminResponse adminResponse = new AdminResponse();
+                        adminResponse.setAdminId(admin.getAdminId());
                         adminResponse.setJwtToken(jwtToken);
                         adminResponse.setUserRole(userRole);
                         adminResponse.setUserName(userName);

@@ -1,5 +1,6 @@
 package com.example.eclinic001.service;
 
+import com.example.eclinic001.configuration.sercuityConfiguration.jwt.authorizer.AccessTokenValidator;
 import com.example.eclinic001.enums.ROLES;
 import com.example.eclinic001.model.Patient;
 import com.example.eclinic001.repo.PatientRepo;
@@ -23,6 +24,9 @@ public class PatientService {
 
     private final PasswordEncoder passwordEncoder;
     private final PatientRepo repo;
+
+    @Autowired
+    private AccessTokenValidator accessTokenValidator;
 
     @Autowired
     public PatientService(PasswordEncoder passwordEncoder, PatientRepo repo) {
@@ -70,9 +74,18 @@ public class PatientService {
         return new ResponseEntity<>(patient, HttpStatus.FOUND);
     }
 
-    public Optional<Patient> getPatientById(Long id) {
-        return repo.findById(id);
-    }
-
+   public ResponseEntity<Optional<Patient>> findPatientById(Long patientId, String authHeader){
+        Optional<Patient> findPatientById = repo.findById(patientId);
+        if(!findPatientById.isEmpty()){
+            try{
+                accessTokenValidator.verifyPatientTokenByEmail(authHeader);
+                return ResponseEntity.status(HttpStatus.OK).body(repo.findById(patientId));
+            }
+            catch (UsernameNotFoundException e){
+                  log.error("User with "+ patientId+ "Was not found in database "+ e.getMessage());
+            }
+        }
+        return (ResponseEntity<Optional<Patient>>) ResponseEntity.status(HttpStatus.NOT_FOUND);
+   }
 
 }

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class AdminResponse {
+    private Long adminId;
     private String jwtToken;
     private String userRole;
     private String userName;

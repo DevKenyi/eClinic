@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class DoctorResponse {
     private String jwtToken;
+    private Long id;
     private String userRole;
     private String userName;
     private String doctorFirstname;

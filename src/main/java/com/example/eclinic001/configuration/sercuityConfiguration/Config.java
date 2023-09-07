@@ -58,9 +58,12 @@ public class Config  {
                                 requests
                                         .requestMatchers(("/admin/**")).hasRole("ADMIN")
                                         .requestMatchers("/patient","/login", "/doctor","/test","/images/**").permitAll()
+                                        .requestMatchers("/appointmentById/**").permitAll()
                                         .requestMatchers("/appointments/**","/").hasAnyRole("PATIENT","ADMIN")
                                         .requestMatchers("/doctors-list","/appointment-bookings/**").hasAnyRole("PATIENT","ADMIN")
+                                        .requestMatchers("/api/confirm-appointment/**").hasRole("DOCTOR")
                                         .requestMatchers("/api/doctor/**").hasRole("DOCTOR")
+                                        .requestMatchers("/api/patient/**").hasRole("PATIENT")
                                         .anyRequest().authenticated()
                                         .and()
                                         .addFilterBefore(jwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)

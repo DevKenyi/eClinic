@@ -22,5 +22,6 @@ public class PatientResponse {
     private String phoneNumber;
     private GENDER gender;
     private String bloodGroup;
+    private Long patientId;
    private ProfilePicture profilePicture;
 }
