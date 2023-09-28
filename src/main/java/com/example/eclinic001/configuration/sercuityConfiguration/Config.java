@@ -64,6 +64,7 @@ public class Config  {
                                         .requestMatchers("/api/confirm-appointment/**").hasRole("DOCTOR")
                                         .requestMatchers("/api/doctor/**").hasRole("DOCTOR")
                                         .requestMatchers("/api/patient/**").hasRole("PATIENT")
+                                        .requestMatchers("/api/patients/**").hasRole("PATIENT")
                                         .anyRequest().authenticated()
                                         .and()
                                         .addFilterBefore(jwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)

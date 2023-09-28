@@ -6,6 +6,7 @@ import com.example.eclinic001.model.Patient;
 import com.example.eclinic001.repo.PatientRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -27,6 +28,7 @@ public class PatientService {
 
     @Autowired
     private AccessTokenValidator accessTokenValidator;
+
 
     @Autowired
     public PatientService(PasswordEncoder passwordEncoder, PatientRepo repo) {
@@ -62,6 +64,8 @@ public class PatientService {
 
             return new ResponseEntity<>(repo.save(newPatient), HttpStatus.CREATED);
         }
+
+
     }
 
 
@@ -74,18 +78,39 @@ public class PatientService {
         return new ResponseEntity<>(patient, HttpStatus.FOUND);
     }
 
-   public ResponseEntity<Optional<Patient>> findPatientById(Long patientId, String authHeader){
-        Optional<Patient> findPatientById = repo.findById(patientId);
-        if(!findPatientById.isEmpty()){
+   public ResponseEntity<Patient> findPatientById(Long patientId, String authHeader){
+       Patient findPatientById= repo.findPatientByPatientId(patientId);
+        if(findPatientById!=null){
             try{
                 accessTokenValidator.verifyPatientTokenByEmail(authHeader);
-                return ResponseEntity.status(HttpStatus.OK).body(repo.findById(patientId));
+                log.info("Patient id here for debugging"+ patientId);
+                return ResponseEntity.status(HttpStatus.OK).body(findPatientById);
             }
             catch (UsernameNotFoundException e){
                   log.error("User with "+ patientId+ "Was not found in database "+ e.getMessage());
             }
         }
-        return (ResponseEntity<Optional<Patient>>) ResponseEntity.status(HttpStatus.NOT_FOUND);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+   }
+
+   public ResponseEntity<String> patientBloodGroup(Long patientId, String authHeader){
+        Patient patient = repo.findPatientByPatientId(patientId);
+        if(patient!=null){
+           try{
+               accessTokenValidator.verifyPatientTokenByEmail(authHeader);
+              String patientBloodGroup =  patient.getBloodGroup();
+              if(patientBloodGroup.isEmpty()){
+                  ResponseEntity.status(HttpStatus.CONFLICT).body("No blood group found for the user");
+              }
+              return  new ResponseEntity<>( patientBloodGroup, HttpStatus.OK);
+           }
+           catch (UsernameNotFoundException e){
+               log.error("User with "+ patientId+ "Was not found in database "+ e.getMessage());
+           }
+        }
+
+
+       return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Server error");
    }
 
 }

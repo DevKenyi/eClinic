@@ -16,12 +16,21 @@ public interface AppointmentRepo extends JpaRepository<Appointments, Long> {
 //    List<Appointments> findAppointmentByPatientId(Long patientId);
 
     @Query("SELECT a FROM Appointments a JOIN a.patient p WHERE p.patientId = :patientId")
-    List<Appointments> findAppointmentByPatientId(@Param("patientId") Long patientId);
-   List<Appointments> findAppointmentsByAppointmentStatusAndDoctor(AppointmentStatus appointmentStatus, Doctor doctor);
+    List<Appointments>
+    findAppointmentByPatientId(@Param("patientId") Long patientId);
+   List<Appointments>
+   findAppointmentsByAppointmentStatusAndDoctor(AppointmentStatus appointmentStatus, Doctor doctor);
+    List<Appointments>
+    findAppointmentsByAppointmentStatusAndPatient(AppointmentStatus appointmentStatus, Patient patient);
 
 
     @Query("SELECT DISTINCT a.patient FROM Appointments a WHERE a.doctor.doctorId = :doctorId")
-    List<Patient> findPatientsByDoctorId(@Param("doctorId") Long doctorId);
+    List<Patient>
+    findPatientsByDoctorId(@Param("doctorId") Long doctorId);
+
+    @Query("SELECT DISTINCT a.doctor FROM Appointments a WHERE a.patient.patientId = :patientId")
+   List<Doctor>
+    findDoctorByPatientId( @Param("patientId") Long patientId);
 
 }
 

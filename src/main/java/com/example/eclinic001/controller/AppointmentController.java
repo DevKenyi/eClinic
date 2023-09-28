@@ -68,6 +68,27 @@ public class AppointmentController {
         return appointmentService.inProgress(doctorId,authorization);
     }
 
+    @GetMapping("api/patient/{patientId}/patient/status-pending")
+    public ResponseEntity<List<Integer>> pendingAppointmentForPatient(@PathVariable Long patientId, @RequestHeader ("Authorization") String authorizationHeader){
+        return appointmentService.pendingAppointmentForPatient(patientId, authorizationHeader);
+    }
+
+    @GetMapping("api/patient/{patientId}/patient/status-scheduled")
+    public ResponseEntity<List<Integer>> scheduledAppointmentForPatient(@PathVariable Long patientId, @RequestHeader ("Authorization") String authorizationHeader){
+        return appointmentService.scheduledAppointmentForPatient(patientId, authorizationHeader);
+    }
+
+    @GetMapping("api/patient/{patientId}/patient/status-completed")
+    public ResponseEntity<List<Integer>> completedAppointmentForPatient(@PathVariable Long patientId, @RequestHeader ("Authorization") String authorizationHeader){
+        return appointmentService.completedAppointmentForPatient(patientId, authorizationHeader);
+    }
+
+    @GetMapping("api/patient/{patientId}/doctor-patient")
+    public ResponseEntity<List<Doctor>> doctorForPatientBasedOnPatientId(@PathVariable Long patientId, @RequestHeader ("Authorization") String authorizationHeader){
+        return appointmentService.doctorListForPatient(patientId, authorizationHeader);
+    }
+
+
 
 
 }

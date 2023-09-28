@@ -24,10 +24,14 @@ public class PatientController {
         return service.userInfo(authentication);
     }
 
-    @GetMapping("/patients/{patientId}")
+    @GetMapping("/patient/{patientId}")
     public ResponseEntity<Patient> findPatientById(@PathVariable Long patientId, @RequestHeader("Authorization") String authorizationHeader) {
-        Optional<Patient> patient = service.findPatientById(patientId, authorizationHeader).getBody();
-        return patient.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return service.findPatientById(patientId, authorizationHeader);
+    }
+
+    @GetMapping("patient/patient-blood-group/{patientId}")
+    public ResponseEntity<String> patientBloodGroup(@PathVariable Long patientId, @RequestHeader("Authorization") String authorizationHeader){
+        return service.patientBloodGroup(patientId, authorizationHeader);
     }
 
 }

@@ -13,15 +13,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestHeader;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import javax.print.Doc;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -32,8 +29,6 @@ public class AppointmentService {
     private DoctorsRepo doctorsRepo;
     @Autowired
     private AppointmentRepo appointmentRepo;
-    @Autowired
-    private UserDetailsService userDetailsService;
     @Autowired
     private TokenAuthorization tokenAuthorization;
     private Doctor doctor;
@@ -124,19 +119,18 @@ public class AppointmentService {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    public ResponseEntity<List<Appointments>> upcomingAppointments(Long doctorId, String authHeader){
+    public ResponseEntity<List<Appointments>> upcomingAppointments(Long doctorId, String authHeader) {
         Doctor doctor = doctorsRepo.findDoctorByDoctorId(doctorId);
 
         if (doctor == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
         }
-        try{
+        try {
             accessTokenValidator.verifyDoctorTokenByEmail(authHeader);
             List<Appointments> appointmentsByAppointmentStatusAndDoctor = appointmentRepo.findAppointmentsByAppointmentStatusAndDoctor(AppointmentStatus.Scheduled, doctor);
             return new ResponseEntity<>(appointmentsByAppointmentStatusAndDoctor, HttpStatus.OK);
 
-        }
-        catch (UsernameNotFoundException e) {
+        } catch (UsernameNotFoundException e) {
             log.error("Can not find doctor with this token, it is " +
                     "either the token is expired or the doctor doctor is not in our database ");
         }
@@ -145,19 +139,18 @@ public class AppointmentService {
 
     }
 
-    public ResponseEntity<List<Appointments>> inProgress(Long doctorId, String authHeader){
+    public ResponseEntity<List<Appointments>> inProgress(Long doctorId, String authHeader) {
         Doctor doctor = doctorsRepo.findDoctorByDoctorId(doctorId);
 
         if (doctor == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
         }
-        try{
+        try {
             accessTokenValidator.verifyDoctorTokenByEmail(authHeader);
             List<Appointments> appointmentsByAppointmentStatusAndDoctor = appointmentRepo.findAppointmentsByAppointmentStatusAndDoctor(AppointmentStatus.InProcess, doctor);
             return new ResponseEntity<>(appointmentsByAppointmentStatusAndDoctor, HttpStatus.OK);
 
-        }
-        catch (UsernameNotFoundException e) {
+        } catch (UsernameNotFoundException e) {
             log.error("Can not find doctor with this token, it is " +
                     "either the token is expired or the doctor doctor is not in our database ");
         }
@@ -230,6 +223,111 @@ public class AppointmentService {
         return (ResponseEntity<List<Patient>>) ResponseEntity.status(HttpStatus.NOT_FOUND);
 
     }
+
+    public ResponseEntity<List<Integer>> pendingAppointmentForPatient(Long patientId, String authHeader) {
+        Patient patient = patientRepo.findPatientByPatientId(patientId);
+
+        if (patient == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
+        }
+
+        try {
+            accessTokenValidator.verifyPatientTokenByEmail(authHeader);
+            List<Appointments> appointmentsByAppointmentStatusAndPatient = appointmentRepo.findAppointmentsByAppointmentStatusAndPatient(AppointmentStatus.Pending, patient);
+            Integer pendingAppointmentForPatient = appointmentsByAppointmentStatusAndPatient.size();
+
+            // Wrap the pendingAppointmentForPatient in a list and return it
+            List<Integer> result = Collections.singletonList(pendingAppointmentForPatient);
+
+            return new ResponseEntity<>(result, HttpStatus.OK);
+
+        } catch (Exception e) {
+            // Handle exceptions here and return an appropriate ResponseEntity in case of errors.
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
+        }
+    }
+
+    public ResponseEntity<List<Integer>> scheduledAppointmentForPatient(Long patientId, String authHeader) {
+        Patient patient = patientRepo.findPatientByPatientId(patientId);
+
+        if (patient == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
+        }
+
+        try {
+            accessTokenValidator.verifyPatientTokenByEmail(authHeader);
+            List<Appointments> appointmentsByAppointmentStatusAndPatient = appointmentRepo.findAppointmentsByAppointmentStatusAndPatient(AppointmentStatus.Scheduled, patient);
+            Integer pendingAppointmentForPatient = appointmentsByAppointmentStatusAndPatient.size();
+
+            // Wrap the pendingAppointmentForPatient in a list and return it
+            List<Integer> result = Collections.singletonList(pendingAppointmentForPatient);
+
+            return new ResponseEntity<>(result, HttpStatus.OK);
+
+        } catch (Exception e) {
+            // Handle exceptions here and return an appropriate ResponseEntity in case of errors.
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
+        }
+
+
+    }
+
+    public ResponseEntity<List<Integer>> completedAppointmentForPatient(Long patientId, String authHeader) {
+        Patient patient = patientRepo.findPatientByPatientId(patientId);
+
+        if (patient == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
+        }
+
+        try {
+            accessTokenValidator.verifyPatientTokenByEmail(authHeader);
+            List<Appointments> appointmentsByAppointmentStatusAndPatient = appointmentRepo.findAppointmentsByAppointmentStatusAndPatient(AppointmentStatus.Completed, patient);
+            Integer pendingAppointmentForPatient = appointmentsByAppointmentStatusAndPatient.size();
+
+            // Wrap the pendingAppointmentForPatient in a list and return it
+            List<Integer> result = Collections.singletonList(pendingAppointmentForPatient);
+
+            return new ResponseEntity<>(result, HttpStatus.OK);
+
+        } catch (Exception e) {
+            // Handle exceptions here and return an appropriate ResponseEntity in case of errors.
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
+        }
+
+
+    }
+
+    public ResponseEntity<List<Doctor>> doctorListForPatient(Long patientId, String authorizationHeader) {
+        Patient patient = patientRepo.findPatientByPatientId(patientId);
+        if (patient == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        try {
+            accessTokenValidator.verifyPatientTokenByEmail(authorizationHeader);
+            List<Doctor> doctorsByPatientId = appointmentRepo.findDoctorByPatientId(patientId);
+
+            // Check if the list is not empty
+            if (!doctorsByPatientId.isEmpty()) {
+                Doctor firstDoctorInArray = doctorsByPatientId.get(0);
+                log.info("First doctor: " + firstDoctorInArray);
+
+                // Create a list containing the first doctor
+                List<Doctor> responseList = Collections.singletonList(firstDoctorInArray);
+
+                // Return the response entity with the list
+                return new ResponseEntity<>(responseList, HttpStatus.OK);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+
+    }
+
+
 
 
 }
