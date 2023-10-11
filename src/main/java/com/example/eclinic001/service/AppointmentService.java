@@ -327,7 +327,23 @@ public class AppointmentService {
 
     }
 
+    public ResponseEntity<List<Appointments>> findAppointmentsForPatientsUsingDoctorsId(Long doctorId, String authorizationHeader) {
+        Doctor doctor = doctorsRepo.findDoctorByDoctorId(doctorId);
+        if (doctor == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        try {
+            accessTokenValidator.verifyDoctorTokenByEmail(authorizationHeader);
+            List<Appointments> appointmentsList = appointmentRepo.findAppointmentsByDoctorDoctorId(doctorId);
+            if (!appointmentsList.isEmpty()) {
+                return new ResponseEntity<>(appointmentsList, HttpStatus.OK);
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
 
-
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
 }

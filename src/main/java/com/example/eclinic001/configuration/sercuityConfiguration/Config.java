@@ -63,6 +63,8 @@ public class Config  {
                                         .requestMatchers("/doctors-list","/appointment-bookings/**").hasAnyRole("PATIENT","ADMIN")
                                         .requestMatchers("/api/confirm-appointment/**").hasRole("DOCTOR")
                                         .requestMatchers("/api/doctor/**").hasRole("DOCTOR")
+                                        .requestMatchers("/api/video/**").hasRole("DOCTOR")
+                                        .requestMatchers("/api/v2/doctors/**").hasAnyRole("DOCTOR", "ADMIN")
                                         .requestMatchers("/api/patient/**").hasRole("PATIENT")
                                         .requestMatchers("/api/patients/**").hasRole("PATIENT")
                                         .anyRequest().authenticated()
@@ -130,7 +132,7 @@ public class Config  {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOriginPatterns(Collections.singletonList("*"));
+        config.addAllowedOrigin("http://localhost:3000");  // Allow only this origin
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         source.registerCorsConfiguration("/**", config);

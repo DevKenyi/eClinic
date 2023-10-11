@@ -3,6 +3,7 @@ package com.example.eclinic001.jwtConfiguration;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -16,16 +17,18 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
 //    @Value("${security.jwt.toke.secret-key:secret-value}")
-    private final static String SecreteKey  ="mysecretkey123";
-    private final  static  long EXPIRATION_TIME = 60*60*1000; //60 seconds
+//private final static String SECRET_KEY = "mysecretkey87899123";
+  private final static   byte[] keyBytes = Keys.secretKeyFor(SignatureAlgorithm.HS256).getEncoded();
+    private final  static  long EXPIRATION_TIME = 60*60*1000;
 
     public static String createToke(Map<String, Object> claims, String subject){
+
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
                 .setExpiration(new Date(System.currentTimeMillis()+EXPIRATION_TIME))
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .signWith(SignatureAlgorithm.HS256, SecreteKey)
+                .signWith(SignatureAlgorithm.HS256, keyBytes)
                 .compact();
     }
 
@@ -57,11 +60,11 @@ public class JwtUtil {
     }
 
     private static Claims extractAllClaims(String token) {
-        return Jwts.parser().setSigningKey(SecreteKey).parseClaimsJws(token).getBody();
+        return Jwts.parser().setSigningKey(keyBytes).parseClaimsJws(token).getBody();
     }
 
     public static Long extractUserIdFromJwtToken(String token){
-        Claims claims = Jwts.parser().setSigningKey( SecreteKey).parseClaimsJws(token).getBody();
+        Claims claims = Jwts.parser().setSigningKey( keyBytes).parseClaimsJws(token).getBody();
         System.out.println("Claims here "+ claims);
         return Long.parseLong(claims.getSubject());
     }

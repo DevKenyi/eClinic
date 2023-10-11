@@ -88,6 +88,11 @@ public class AppointmentController {
         return appointmentService.doctorListForPatient(patientId, authorizationHeader);
     }
 
+    @GetMapping("/api/v2/doctors/{doctorId}/appointments")
+    public ResponseEntity<List<Appointments>> findAppointmentsForPatientsUsingDoctorsId(@PathVariable Long doctorId, @RequestHeader("Authorization") String authorizationHeader){
+        return appointmentService.findAppointmentsForPatientsUsingDoctorsId(doctorId, authorizationHeader );
+    }
+
 
 
 
