@@ -23,7 +23,6 @@ public class DyteMeetingRequestService {
     private String baseUrl;
 
     private RestTemplate restTemplate;
-
     @Autowired
     private DoctorsRepo doctorsRepo;
     @Autowired

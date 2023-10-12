@@ -64,6 +64,7 @@ public class Config  {
                                         .requestMatchers("/api/confirm-appointment/**").hasRole("DOCTOR")
                                         .requestMatchers("/api/doctor/**").hasRole("DOCTOR")
                                         .requestMatchers("/api/video/**").hasRole("DOCTOR")
+                                        .requestMatchers("/api/meetings/").hasAnyRole("PATIENT","DOCTOR","ADMIN")
                                         .requestMatchers("/api/v2/doctors/**").hasAnyRole("DOCTOR", "ADMIN")
                                         .requestMatchers("/api/patient/**").hasRole("PATIENT")
                                         .requestMatchers("/api/patients/**").hasRole("PATIENT")
