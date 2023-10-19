@@ -65,6 +65,7 @@ public class Config  {
                                         .requestMatchers("/api/doctor/**").hasRole("DOCTOR")
                                         .requestMatchers("/api/video/**").hasRole("DOCTOR")
                                         .requestMatchers("/api/meetings/").hasAnyRole("PATIENT","DOCTOR","ADMIN")
+                                        .requestMatchers("/api/meeting/dyte-response").hasAnyRole("ADMIN","DOCTOR")
                                         .requestMatchers("/api/v2/doctors/**").hasAnyRole("DOCTOR", "ADMIN")
                                         .requestMatchers("/api/patient/**").hasRole("PATIENT")
                                         .requestMatchers("/api/patients/**").hasRole("PATIENT")

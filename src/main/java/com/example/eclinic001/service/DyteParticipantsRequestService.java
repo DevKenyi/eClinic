@@ -1,8 +1,10 @@
 package com.example.eclinic001.service;
 
 import com.example.eclinic001.configuration.sercuityConfiguration.jwt.authorizer.AccessTokenValidator;
+import com.example.eclinic001.model.Doctor;
 import com.example.eclinic001.model.Patient;
 import com.example.eclinic001.model.webApi.video_conferencing_api.DyteParticipantRequest;
+import com.example.eclinic001.repo.DoctorsRepo;
 import com.example.eclinic001.repo.PatientRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,30 +23,38 @@ public class DyteParticipantsRequestService {
     private final RestTemplate restTemplate;
     private final AccessTokenValidator accessTokenValidator;
     private final PatientRepo patientRepo;
+    private final DoctorsRepo doctorsRepo;
 
     @Autowired
-    public DyteParticipantsRequestService(RestTemplate restTemplate, AccessTokenValidator accessTokenValidator, PatientRepo patientRepo) {
+    public DyteParticipantsRequestService(RestTemplate restTemplate, AccessTokenValidator accessTokenValidator, PatientRepo patientRepo, DoctorsRepo doctorsRepo) {
         this.restTemplate = restTemplate;
         this.accessTokenValidator = accessTokenValidator;
         this.patientRepo = patientRepo;
+        this.doctorsRepo = doctorsRepo;
     }
 
-    public ResponseEntity<String> addParticipant(Long patientId, String authorizationHeader, String meetingId, DyteParticipantRequest addParticipant) {
-        Patient findPatientById = patientRepo.findPatientByPatientId(patientId);
+    public ResponseEntity<String> addParticipant(Long doctorId,
+                                                 String meetingId,
+                                                 DyteParticipantRequest addParticipant,
+                                                 String authorizationHeader) {
 
-        if (findPatientById == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Patient with " + patientId + " was not found in our repository");
+
+        Doctor findDoctorById = doctorsRepo.findDoctorByDoctorId(doctorId);
+        if (findDoctorById == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Doctor with the id  "+ findDoctorById + "Was not found");
         }
 
+
         try {
-            ResponseEntity<?> accessTokenEntity = accessTokenValidator.verifyPatientTokenByEmail(authorizationHeader);
+            ResponseEntity<?> accessTokenEntity = accessTokenValidator.verifyDoctorTokenByEmail(authorizationHeader);
             if (accessTokenEntity.getStatusCode() != HttpStatus.OK) {
                 // cases where access token validation fails
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Access token validation failed");
             }
 
             String addParticipantUrl = baseUrl + "/meetings/" + meetingId + "/participants";
+            log.info("add participant url here "+ addParticipantUrl);
+            System.out.println("add participant url here "+ addParticipantUrl);
 
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setContentType(MediaType.APPLICATION_JSON);

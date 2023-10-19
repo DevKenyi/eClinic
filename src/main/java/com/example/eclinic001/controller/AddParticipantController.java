@@ -19,17 +19,19 @@ public class AddParticipantController {
         this.dyteParticipantsRequestService = dyteParticipantsRequestService;
     }
 
-    @PostMapping("/meetings/{meetingId}/participants/{patientId}")
+    @PostMapping("/meetings/{meetingId}/participants/{doctorId}")
     public ResponseEntity<String> addParticipant(
+            @PathVariable Long doctorId,
             @PathVariable String meetingId,
-            @PathVariable Long patientId,
-            @RequestHeader("Authorization") String authorizationHeader,
-            @RequestBody DyteParticipantRequest dyteParticipantRequest) {
+
+            @RequestBody DyteParticipantRequest dyteParticipantRequest,
+            @RequestHeader("Authorization") String authorizationHeader)
+             {
 
         // Ensure the preset_name is set
         dyteParticipantRequest.setPreset_name("webinar_presenter");
 
-        return dyteParticipantsRequestService.addParticipant(patientId, authorizationHeader, meetingId, dyteParticipantRequest);
+        return dyteParticipantsRequestService.addParticipant(doctorId, meetingId, dyteParticipantRequest, authorizationHeader );
     }
 
 }

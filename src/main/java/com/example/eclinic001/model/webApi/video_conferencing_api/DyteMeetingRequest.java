@@ -1,9 +1,13 @@
 package com.example.eclinic001.model.webApi.video_conferencing_api;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+import java.util.UUID;
+
 @Data
 public class DyteMeetingRequest {
+
     @JsonProperty("title")
     private String title;
 
@@ -29,7 +33,6 @@ public class DyteMeetingRequest {
 
     // Nested classes to represent the nested structures in the JSON
 
-    @Data
     private static class RecordingConfig {
 
         @JsonProperty("max_seconds")
@@ -50,7 +53,6 @@ public class DyteMeetingRequest {
         // Getters and setters here...
     }
 
-    @Data
     private static class VideoConfig {
 
         @JsonProperty("codec")
@@ -67,7 +69,7 @@ public class DyteMeetingRequest {
 
         // Getters and setters here...
     }
-     @Data
+
     private static class Watermark {
 
         @JsonProperty("url")
@@ -81,7 +83,7 @@ public class DyteMeetingRequest {
 
         // Getters and setters here...
     }
-    @Data
+
     private static class Size {
 
         @JsonProperty("width")
@@ -92,7 +94,7 @@ public class DyteMeetingRequest {
 
         // Getters and setters here...
     }
-    @Data
+
     private static class AudioConfig {
 
         @JsonProperty("codec")
@@ -103,7 +105,7 @@ public class DyteMeetingRequest {
 
         // Getters and setters here...
     }
-    @Data
+
     private static class StorageConfig {
 
         @JsonProperty("type")
@@ -144,7 +146,7 @@ public class DyteMeetingRequest {
 
         // Getters and setters here...
     }
-    @Data
+
     private static class DyteBucketConfig {
 
         @JsonProperty("enabled")
@@ -152,14 +154,11 @@ public class DyteMeetingRequest {
 
         // Getters and setters here...
     }
-    @Data
+
     private static class LiveStreamingConfig {
 
         @JsonProperty("rtmp_url")
         private String rtmpUrl;
 
-        // Getters and setters here...
     }
-
-
 }
