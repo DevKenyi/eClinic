@@ -1,6 +1,5 @@
 # eClinic# e-Clinic Application
 
-![Your e-Clinic Logo](url_to_your_logo.png)
 
 ## Table of Contents
 
