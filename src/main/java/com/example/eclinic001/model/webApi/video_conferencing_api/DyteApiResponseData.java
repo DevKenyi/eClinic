@@ -11,5 +11,5 @@ public class DyteApiResponseData {
     private String preferredRegion;
     private String createdAt;
     private boolean recordOnStart;
-    private String Status;
+    private String status;
 }

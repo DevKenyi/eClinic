@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class Appointments {
+public class  Appointments {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long appointmentId;

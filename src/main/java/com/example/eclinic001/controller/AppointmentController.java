@@ -92,6 +92,20 @@ public class AppointmentController {
     public ResponseEntity<List<Appointments>> findAppointmentsForPatientsUsingDoctorsId(@PathVariable Long doctorId, @RequestHeader("Authorization") String authorizationHeader){
         return appointmentService.findAppointmentsForPatientsUsingDoctorsId(doctorId, authorizationHeader );
     }
+   @PutMapping("/api/v1/updateStatus/{appointmentId}")
+    public String updateAppointmentStatus(
+                                            @RequestParam Long doctorId,
+                                            @RequestParam  Long patientId,
+                                            @PathVariable Long appointmentId,
+                                            @RequestHeader ("Authorization") String authHeader,
+                                            @RequestBody   Appointments appointmentStatus
+
+
+
+    )
+    {
+        return appointmentService.updateAppointmentStatus(doctorId, patientId, appointmentId, authHeader, appointmentStatus);
+    }
 
 
 

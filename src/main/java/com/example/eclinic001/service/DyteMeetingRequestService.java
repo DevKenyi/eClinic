@@ -42,6 +42,8 @@ public class DyteMeetingRequestService {
     @Autowired
     private MeetingDtoRepo meetingDtoRepo;
 
+
+
     @Autowired
     public DyteMeetingRequestService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
@@ -51,7 +53,7 @@ public class DyteMeetingRequestService {
         // Find the doctor by ID
         Doctor doctorById = doctorsRepo.findDoctorByDoctorId(doctorId);
 
-        if (doctorById == null) {
+        if (doctorById == null ) {
             return ResponseEntity.notFound().build();
         }
 
@@ -65,7 +67,10 @@ public class DyteMeetingRequestService {
 
             // Create HTTP headers with Basic Authentication
             HttpHeaders httpHeaders = new HttpHeaders();
+//            httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+            log.info("http headers here "+ httpHeaders);
             httpHeaders.setBasicAuth("cdbb57e1-a2fd-4eb0-b051-dbf96ff6ee20", "27c8515bb47830275ecb");
+
 
             // Create the HTTP request entity
             HttpEntity<DyteMeetingRequest> requestHttpEntity = new HttpEntity<>(dyteMeetingRequest, httpHeaders);
@@ -75,7 +80,7 @@ public class DyteMeetingRequestService {
 
             if (responseEntity.getStatusCode() == HttpStatus.CREATED) {
                 log.info("Meeting was created successfully"+ requestHttpEntity.getBody());
-                 saveMeetingFromDyteApiResponse(responseEntity);
+                 saveMeetingFromDyteApiResponse(responseEntity, doctorId);
 
 
                 log.info("Request being sent: " + dyteMeetingRequest);
@@ -98,7 +103,7 @@ public class DyteMeetingRequestService {
 
     }
 
-    public void saveMeetingFromDyteApiResponse(ResponseEntity<String> responseEntity) {
+    public void saveMeetingFromDyteApiResponse(ResponseEntity<String> responseEntity, Long doctorId) {
         if (responseEntity.getStatusCode() == HttpStatus.CREATED) {
             String responseBody = responseEntity.getBody();
             ObjectMapper objectMapper = new ObjectMapper();
@@ -111,14 +116,19 @@ public class DyteMeetingRequestService {
                 // Extract relevant data and save to your database
                 DyteApiResponseData responseData = dyteApiResponse.getData();
 
-                MeetingDto meetingDto = new MeetingDto();
-                meetingDto.setMeetingId(responseData.getId());
-                meetingDto.setTitle(responseData.getTitle());
-                meetingDto.setCreatedAt(responseData.getCreatedAt());
-                meetingDto.setStatus(responseData.getStatus());
+                Doctor doctor = doctorsRepo.findDoctorByDoctorId(doctorId);
+                if(doctor!=null) {
+                    MeetingDto meetingDto = new MeetingDto();
+                    meetingDto.setMeetingId(responseData.getId());
+                    meetingDto.setTitle(responseData.getTitle());
+                    meetingDto.setCreatedAt(responseData.getCreatedAt());
+                    meetingDto.setStatus(responseData.getStatus());
+                    meetingDto.setDoctor(doctor);
 
-                MeetingDto save = meetingDtoRepo.save(meetingDto);
-                log.info("save object to repo "+ save);
+
+                    MeetingDto save = meetingDtoRepo.save(meetingDto);
+                    log.info("save object to repo " + save);
+                }
             } catch (IOException e) {
                 // Handle parsing exception
                 e.printStackTrace();

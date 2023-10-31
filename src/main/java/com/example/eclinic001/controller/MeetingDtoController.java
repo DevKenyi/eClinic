@@ -4,10 +4,7 @@ import com.example.eclinic001.model.webApi.video_conferencing_api.MeetingDto;
 import com.example.eclinic001.service.MeetingDtoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -26,4 +23,12 @@ public class MeetingDtoController {
     public ResponseEntity<List<MeetingDto>> getMeeting(@RequestHeader("Authorization") String authorizationHeader) {
         return service.getMeeting(authorizationHeader);
     }
+
+
+    @GetMapping("/meeting/dyte-response/{doctorsId}")
+    private ResponseEntity<List<MeetingDto>> getMeetingBasedOnDoctorsId(@RequestHeader("Authorization") String authHeader, @PathVariable Long doctorsId){
+          return service.findMeetingByDoctorId(doctorsId, authHeader);
+    }
+
+
 }
