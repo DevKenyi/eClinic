@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.example.eclinic001.EClinic001ApplicationTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 16.115 s - in com.example.eclinic001.EClinic001ApplicationTests
