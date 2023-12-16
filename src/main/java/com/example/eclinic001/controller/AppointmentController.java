@@ -15,7 +15,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@CrossOrigin(origins = {"http://localhost:3000"}, allowedHeaders = "*", allowCredentials = "true")
+//@CrossOrigin(origins = {"http://localhost:3000"}, allowedHeaders = "*", allowCredentials = "true")
 public class AppointmentController {
 
     @Autowired
@@ -97,14 +97,18 @@ public class AppointmentController {
                                             @RequestParam Long doctorId,
                                             @RequestParam  Long patientId,
                                             @PathVariable Long appointmentId,
-                                            @RequestHeader ("Authorization") String authHeader,
+                                            @RequestHeader ("Authorization") String authorizationHeader,
                                             @RequestBody   Appointments appointmentStatus
 
 
 
     )
     {
-        return appointmentService.updateAppointmentStatus(doctorId, patientId, appointmentId, authHeader, appointmentStatus);
+        return appointmentService.updateAppointmentStatus(doctorId, patientId, appointmentId, authorizationHeader, appointmentStatus);
+    }
+      @PutMapping("api/test/statusUpdate/{doctorId}/{patientId}/{appointmentId}")
+    public String updateAppointmentTest(@PathVariable Long doctorId, @PathVariable Long patientId, @PathVariable Long appointmentId, @RequestHeader("Authorization") String authorizationHeader, @RequestBody Appointments appointmentStatus){
+        return appointmentService.updateAppointmentStatus(doctorId, patientId,appointmentId,authorizationHeader, appointmentStatus );
     }
 
 

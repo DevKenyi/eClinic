@@ -119,45 +119,7 @@ public class AppointmentService {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    public String updateAppointmentStatus(Long doctorId, Long patientId,
-                                          Long appointmentId,
-                                          String authorizationHeader,
-                                          Appointments appointmentStatus) {
 
-        Doctor doctorInRepo = doctorsRepo.findDoctorByDoctorId(doctorId);
-        Patient patientInRepo = patientRepo.findPatientByPatientId(patientId);
-
-        if (doctorInRepo == null && patientInRepo == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Doctor and patient were not found").getBody();
-        }
-
-        try {
-            String extractedEmail = tokenAuthorization.authorizeToken(authorizationHeader);
-            Doctor extractDoctorsEmail = doctorsRepo.findDoctorByEmail(extractedEmail);
-
-            if (extractDoctorsEmail != null) {
-                Optional<Appointments> findAppointmentById = appointmentRepo.findAppointmentsByAppointmentId(appointmentId);
-
-                if (findAppointmentById.isPresent()) {
-                    Appointments existingAppointment = findAppointmentById.get();
-                    existingAppointment.setAppointmentStatus(appointmentStatus.getAppointmentStatus());
-                    appointmentRepo.save(existingAppointment);
-                    return ResponseEntity.status(HttpStatus.CREATED)
-                            .body("Appointment status is updated successfully").toString();
-                } else {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                            .body("Appointment was not found in the database").toString();
-                }
-            }
-        } catch (UsernameNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("User not authorized to update the appointment").toString();
-        }
-
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Internal server error").getBody();
-    }
 
     public ResponseEntity<List<Appointments>> upcomingAppointments(Long doctorId, String authHeader) {
         Doctor doctor = doctorsRepo.findDoctorByDoctorId(doctorId);
@@ -385,5 +347,49 @@ public class AppointmentService {
 
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+
     }
+
+    public String updateAppointmentStatus(Long doctorId, Long patientId,
+                                          Long appointmentId,
+                                          String authorizationHeader,
+                                          Appointments appointmentStatus) {
+        log.info("update status method called " + Appointments.class);
+
+        Doctor doctorInRepo = doctorsRepo.findDoctorByDoctorId(doctorId);
+        Patient patientInRepo = patientRepo.findPatientByPatientId(patientId);
+
+        if (doctorInRepo == null && patientInRepo == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Doctor and patient were not found").getBody();
+        }
+
+        try {
+            String extractedEmail = tokenAuthorization.authorizeToken(authorizationHeader);
+            Doctor extractDoctorsEmail = doctorsRepo.findDoctorByEmail(extractedEmail);
+
+            if (extractDoctorsEmail != null) {
+                Optional<Appointments> findAppointmentById = appointmentRepo.findAppointmentsByAppointmentId(appointmentId);
+
+                if (findAppointmentById.isPresent()) {
+                    Appointments existingAppointment = findAppointmentById.get();
+                    existingAppointment.setAppointmentStatus(appointmentStatus.getAppointmentStatus());
+                    appointmentRepo.save(existingAppointment);
+                    return ResponseEntity.status(HttpStatus.CREATED)
+                            .body("Appointment status is updated successfully").toString();
+                } else {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                            .body("Appointment was not found in the database").toString();
+                }
+            }
+        } catch (UsernameNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("User not authorized to update the appointment").toString();
+        }
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Internal server error").getBody();
+    }
+
 }

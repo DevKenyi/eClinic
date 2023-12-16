@@ -35,6 +35,5 @@ public class  Appointments {
     private String purpose;
     @Enumerated(EnumType.STRING)
     private AppointmentStatus appointmentStatus;
-    @OneToMany(mappedBy = "appointments", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<LabTest> labTestList ;
+
 }
